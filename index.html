@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salasanan tarkistus</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2rem;
+      }
+      .result {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 6px;
+      }
+      .result.ok {
+        background: #e0f7e9;
+        color: #11602b;
+      }
+      .result.fail {
+        background: #fde2e2;
+        color: #8a1111;
+      }
+      ul {
+        margin: 0.5rem 0 1rem;
+      }
+    </style>
+</head>
+<body>
+    <h1>Salasanan tarkistus</h1>
+    <p>Tarkista salasana alla. Sen on oltava vähintään 10 merkkiä pitkä ja sisältää isot ja pienet kirjaimet, numeron sekä erikoismerkin.</p>
+
+    <label for="password">Salasana:</label>
+    <input id="password" type="password" autocomplete="off" placeholder="Kirjoita salasana" style="width:100%; max-width:400px; padding:0.5rem; margin-top:0.5rem;">
+    <button id="checkButton" style="display:block; margin-top:1rem; padding:0.75rem 1rem;">Tarkista</button>
+
+    <div id="result" class="result" style="display:none"></div>
+
+    <script>
+      function checkPassword(password) {
+        const minLength = password.length >= 10;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+
+        return {
+          valid: minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar,
+          minLength,
+          hasUpperCase,
+          hasLowerCase,
+          hasNumber,
+          hasSpecialChar
+        };
+      }
+
+      const passwordInput = document.getElementById('password');
+      const checkButton = document.getElementById('checkButton');
+      const resultBox = document.getElementById('result');
+
+      checkButton.addEventListener('click', () => {
+        const password = passwordInput.value;
+        const status = checkPassword(password);
+
+        if (status.valid) {
+          resultBox.style.display = 'block';
+          resultBox.className = 'result ok';
+          resultBox.textContent = 'Salasana hyväksyttiin. Se täyttää vaatimukset.';
+          return;
+        }
+
+        const errors = [];
+        if (!status.minLength) errors.push('Salasanan on oltava vähintään 10 merkkiä pitkä.');
+        if (!status.hasUpperCase) errors.push('Salasanassa on oltava vähintään yksi iso kirjain.');
+        if (!status.hasLowerCase) errors.push('Salasanassa on oltava vähintään yksi pieni kirjain.');
+        if (!status.hasNumber) errors.push('Salasanassa on oltava vähintään yksi numero.');
+        if (!status.hasSpecialChar) errors.push('Salasanassa on oltava vähintään yksi erikoismerkki.');
+
+        resultBox.style.display = 'block';
+        resultBox.className = 'result fail';
+        resultBox.innerHTML = '<strong>Salasana ei täytä vaatimuksia:</strong><ul>' +
+          errors.map(error => '<li>' + error + '</li>').join('') +
+          '</ul>';
+      });
+    </script>
+</body>
+</html>
